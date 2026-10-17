@@ -1,0 +1,200 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | Smart Expense Tracker</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="{{ url_for('static', filename='script.js') }}" defer></script>
+</head>
+<body class="dashboard-page">
+    <header class="topbar">
+        <a href="{{ url_for('dashboard') }}" class="brand">
+            <span class="brand-icon small-icon">₹</span>
+            <span>Expense<span class="brand-accent">Tracker</span></span>
+        </a>
+
+        <div class="user-menu">
+            <span>Hi, {{ username }}!</span>
+            <form action="{{ url_for('logout') }}" method="POST">
+                <button class="logout-btn" type="submit">Logout</button>
+            </form>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="welcome">
+            <div>
+                <p class="eyebrow">YOUR FINANCES AT A GLANCE</p>
+                <h1>Dashboard</h1>
+                <p class="muted">Track your money. Build better habits.</p>
+            </div>
+            <div class="date-badge" id="today-date"></div>
+        </section>
+
+        <section class="summary-grid">
+            <article class="summary-card income-card">
+                <div class="card-top">
+                    <span>Total Income</span>
+                    <span class="card-icon">↗</span>
+                </div>
+                <h2 id="total-income">₹0.00</h2>
+                <p>All recorded income</p>
+            </article>
+
+            <article class="summary-card expense-card">
+                <div class="card-top">
+                    <span>Total Expenses</span>
+                    <span class="card-icon">↘</span>
+                </div>
+                <h2 id="total-expenses">₹0.00</h2>
+                <p>All recorded expenses</p>
+            </article>
+
+            <article class="summary-card balance-card">
+                <div class="card-top">
+                    <span>Remaining Balance</span>
+                    <span class="card-icon">₹</span>
+                </div>
+                <h2 id="balance">₹0.00</h2>
+                <p>Income minus expenses</p>
+            </article>
+        </section>
+
+        <section class="section-heading">
+            <div>
+                <h2>Monthly overview</h2>
+                <p class="muted">Your income and expenses this month</p>
+            </div>
+        </section>
+
+        <section class="overview-grid">
+            <article class="panel">
+                <h3>Monthly summary</h3>
+                <div class="month-stats">
+                    <div>
+                        <span class="muted">Income this month</span>
+                        <strong class="positive" id="month-income">₹0.00</strong>
+                    </div>
+                    <div>
+                        <span class="muted">Expenses this month</span>
+                        <strong class="negative" id="month-expenses">₹0.00</strong>
+                    </div>
+                </div>
+                <div class="insight-box">
+                    <span class="insight-icon">✦</span>
+                    <div>
+                        <strong>Smart insight</strong>
+                        <p id="insight">Loading your spending insights...</p>
+                    </div>
+                </div>
+            </article>
+
+            <article class="panel chart-panel">
+                <h3>Spending by category</h3>
+                <div class="chart-wrap">
+                    <canvas id="category-chart"></canvas>
+                </div>
+                <p class="muted chart-caption">Based on this month's expenses</p>
+            </article>
+        </section>
+
+        <section class="section-heading">
+            <div>
+                <h2>Add a transaction</h2>
+                <p class="muted">Record income or an expense</p>
+            </div>
+        </section>
+
+        <section class="panel">
+            <form id="transaction-form" class="transaction-form">
+                <div class="form-field">
+                    <label for="title">Description</label>
+                    <input id="title" name="title" type="text"
+                           placeholder="e.g. Lunch, Monthly salary"
+                           maxlength="120" required>
+                </div>
+
+                <div class="form-field">
+                    <label for="amount">Amount (₹)</label>
+                    <input id="amount" name="amount" type="number"
+                           min="0.01" max="1000000000" step="0.01"
+                           placeholder="0.00" required>
+                </div>
+
+                <div class="form-field">
+                    <label for="kind">Transaction type</label>
+                    <select id="kind" name="kind" required>
+                        <option value="expense">Expense</option>
+                        <option value="income">Income</option>
+                    </select>
+                </div>
+
+                <div class="form-field">
+                    <label for="category">Category</label>
+                    <select id="category" name="category" required>
+                        <option value="Food">Food</option>
+                        <option value="Travel">Travel</option>
+                        <option value="Shopping">Shopping</option>
+                        <option value="Bills">Bills</option>
+                        <option value="Health">Health</option>
+                        <option value="Education">Education</option>
+                        <option value="Entertainment">Entertainment</option>
+                        <option value="Salary">Salary</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+
+                <div class="form-field">
+                    <label for="date">Date</label>
+                    <input id="date" name="date" type="date" required>
+                </div>
+
+                <div class="form-field form-action">
+                    <button type="submit" class="primary-btn full-btn">
+                        + Add Transaction
+                    </button>
+                </div>
+            </form>
+            <p id="form-message" class="form-message" role="status"></p>
+        </section>
+
+        <section class="section-heading">
+            <div>
+                <h2>Recent transactions</h2>
+                <p class="muted">Your recorded income and expenses</p>
+            </div>
+        </section>
+
+        <section class="panel table-panel">
+            <div class="table-scroll">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Description</th>
+                            <th>Category</th>
+                            <th>Date</th>
+                            <th>Type</th>
+                            <th>Amount</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="transaction-list">
+                        <tr>
+                            <td colspan="6" class="empty-state">
+                                Loading transactions...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <footer class="page-footer">
+            Smart Expense Tracker · Manage your money wisely
+        </footer>
+    </main>
+</body>
+</html>
